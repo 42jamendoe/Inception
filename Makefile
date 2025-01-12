@@ -22,6 +22,7 @@ clean:
 
 fclean: clean
 	$(DOCKER_COMPOSE) down --rmi all --volumes
+	@docker system prune -af
 re: fclean all
 
 .PHONY: all stop restart clean fclean re
