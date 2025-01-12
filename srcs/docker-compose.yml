@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  mariadb:
+    env_file:
+      - ./.env
+    container_name: mariadb_service
+    build: requirements/mariadb
+    networks:
+      - docker_network
+    restart: on-failure
+    volumes:
+      - bd_data:/var/lib/mysql
+  wordpress:
+    env_file:
+      - ./.env
+    container_name: wordpress_service
+    build: requirements/wordpress
+    depends_on:
+      - mariadb
+    volumes:
+      - wp_data:/var/www/html
+    networks:
+      - docker_network
+    restart: on-failure
+  nginx:
+    container_name: nginx_service
+    build: requirements/nginx
+    ports:
+      - "443:443"
+    depends_on:
+      - mariadb
+      - wordpress
+    volumes:
+      - wp_data:/var/www/html
+    networks:
+      - docker_network
+    restart: on-failure
+
+networks:
+  docker_network:
+    driver: bridge
+
+volumes:
+  bd_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/jamendoe/data/bd_data
+  wp_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/jamendoe/data/wp_data
